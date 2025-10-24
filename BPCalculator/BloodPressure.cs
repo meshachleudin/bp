@@ -26,14 +26,33 @@ namespace BPCalculator
         [Range(DiastolicMin, DiastolicMax, ErrorMessage = "Invalid Diastolic Value")]
         public int Diastolic { get; set; }                      // mmHG
 
+        public int systolic;
+        public int diastolic;
+        
         // calculate BP category
         public BPCategory Category
         {
             get
             {
                 // implement as part of project
+                if (Systolic <= 90 && Diastolic <= 60)
+                {
+                    return BPCategory.Low;
+                }
+                else if (Systolic <= 120 && Diastolic <= 80)
+                {
+                    return BPCategory.Ideal;
+                }
+                else if (Systolic <= 139 && Diastolic <= 89)
+                {
+                    return BPCategory.PreHigh;
+                }
+                else
+                {
+                    return BPCategory.High;
+                }
                 //throw new NotImplementedException("not implemented yet");
-                return new BPCategory();                       // replace this
+                //return new BPCategory();                       // replace this
             }
         }
     }
