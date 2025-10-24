@@ -14,16 +14,16 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="BP.Systolic" class="control-label"></label>
-                <input asp-for="BP.Systolic" class="form-control"/>
+                <input asp-for="BP.Systolic" class="form-control" placeholder="Enter Systolic Value" />
                 <span asp-validation-for="BP.Systolic" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="BP.Diastolic" class="control-label"></label>
-                <input asp-for="BP.Diastolic" class="form-control" />
+                <input asp-for="BP.Diastolic" class="form-control" placeholder="Enter Diastolic Value" />
                 <span asp-validation-for="BP.Diastolic" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Submit" class="btn btn-default" />
+                <input type="submit" value="Submit" class="btn btn-primary" />
             </div>
             @if (ViewData.ModelState.IsValid)
             {

@@ -7,12 +7,11 @@ namespace BPCalculator
     // BP categories
     public enum BPCategory
     {
-        [Display(Name="Low Blood Pressure")] Low,
-        [Display(Name="Ideal Blood Pressure")]  Ideal,
-        [Display(Name="Pre-High Blood Pressure")] PreHigh,
-        [Display(Name ="High Blood Pressure")]  High
+        [Display(Name="Low Blood Pressure - Low risk - Maintain hydration and regular meals.")] Low,
+        [Display(Name="Ideal Blood Pressure - Healthy - Keep up the good work!")]  Ideal,
+        [Display(Name="Pre-High Blood Pressure - Moderate risk - Consider lifestyle adjustments.")] PreHigh,
+        [Display(Name ="High Blood Pressure - High risk - Consult your doctor.")]  High
     };
-
     public class BloodPressure
     {
         public const int SystolicMin = 70;
@@ -55,5 +54,16 @@ namespace BPCalculator
                 //return new BPCategory();                       // replace this
             }
         }
+        public string HeartRiskLevel
+        {
+            get
+            {
+                if (Category == BPCategory.Low) return "Low risk - Maintain hydration and regular meals.";
+                if (Category == BPCategory.Ideal) return "Healthy - Keep up the good work!";
+                if (Category == BPCategory.PreHigh) return "Moderate risk - Consider lifestyle adjustments.";
+                return "High risk - Consult your doctor.";
+            }
+        }
+
     }
 }
