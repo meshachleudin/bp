@@ -12,6 +12,7 @@ namespace BPCalculator
         [Display(Name="Pre-High Blood Pressure - Moderate risk - Consider lifestyle adjustments.")] PreHigh,
         [Display(Name ="High Blood Pressure - High risk - Consult your doctor.")]  High
     };
+
     public class BloodPressure
     {
         public const int SystolicMin = 70;
@@ -20,40 +21,30 @@ namespace BPCalculator
         public const int DiastolicMax = 100;
 
         [Range(SystolicMin, SystolicMax, ErrorMessage = "Invalid Systolic Value")]
-        public int Systolic { get; set; }                       // mmHG
+        public int Systolic { get; set; }
 
         [Range(DiastolicMin, DiastolicMax, ErrorMessage = "Invalid Diastolic Value")]
-        public int Diastolic { get; set; }                      // mmHG
+        public int Diastolic { get; set; }
 
         public int systolic;
         public int diastolic;
-        
+
         // calculate BP category
         public BPCategory Category
         {
             get
             {
-                // implement as part of project
                 if (Systolic <= 90 && Diastolic <= 60)
-                {
                     return BPCategory.Low;
-                }
                 else if (Systolic <= 120 && Diastolic <= 80)
-                {
                     return BPCategory.Ideal;
-                }
                 else if (Systolic <= 139 && Diastolic <= 89)
-                {
                     return BPCategory.PreHigh;
-                }
                 else
-                {
                     return BPCategory.High;
-                }
-                //throw new NotImplementedException("not implemented yet");
-                //return new BPCategory();                       // replace this
             }
         }
+
         public string HeartRiskLevel
         {
             get
@@ -62,6 +53,32 @@ namespace BPCalculator
                 if (Category == BPCategory.Ideal) return "Healthy - Keep up the good work!";
                 if (Category == BPCategory.PreHigh) return "Moderate risk - Consider lifestyle adjustments.";
                 return "High risk - Consult your doctor.";
+            }
+        }
+
+        // -------------------------------------------------------
+        // Simple Cardiovascular Risk Score (long-term risk)
+        // -------------------------------------------------------
+        public string CardiovascularRisk
+        {
+            get
+            {
+                int score = 0;
+
+                // Base scoring from blood pressure values
+                score += (Systolic - 100) / 10;
+                score += (Diastolic - 70) / 10;
+
+                // Additional weight based on BP category
+                if (Category == BPCategory.PreHigh) score += 2;
+                if (Category == BPCategory.High) score += 4;
+
+                if (score < 2)
+                    return "Low long-term cardiovascular risk.";
+                else if (score < 6)
+                    return "Moderate long-term cardiovascular risk.";
+                else
+                    return "High long-term cardiovascular risk.";
             }
         }
 
