@@ -14,58 +14,40 @@
 
             <div class="form-group">
                 <label asp-for="BP.Systolic" class="control-label"></label>
-                <input asp-for="BP.Systolic" class="form-control" placeholder="Enter Systolic Value" />
+                <input asp-for="BP.Systolic" class="form-control" placeholder="Enter Systolic Value" value="@Model.BP?.Systolic" />
                 <span asp-validation-for="BP.Systolic" class="text-danger"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="BP.Diastolic" class="control-label"></label>
-                <input asp-for="BP.Diastolic" class="form-control" placeholder="Enter Diastolic Value" />
+                <input asp-for="BP.Diastolic" class="form-control" placeholder="Enter Diastolic Value" value="@Model.BP?.Diastolic" />
                 <span asp-validation-for="BP.Diastolic" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <input type="submit" value="Submit" class="btn btn-primary" />
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" asp-page-handler="Clear" class="btn btn-secondary">Clear</button>
             </div>
 
-            @* ----------------------------
-               RESULTS SECTION (NULL-SAFE)
-               Shows results only when BP is initialized
-               ---------------------------- *@
-            @if (ViewData.ModelState.IsValid && Model.BP != null)
+            @* Results section, only show when values entered *@
+            @if (ViewData.ModelState.IsValid && Model.BP != null && (Model.BP.Systolic != 0 || Model.BP.Diastolic != 0))
             {
                 <div class="alert alert-info mt-3">
-
-                    <p><strong>Blood Pressure Category:</strong><br />
-                        @Model.BP.Category
-                    </p>
-
-                    <p><strong>Immediate Risk Level:</strong><br />
-                        @Model.BP.HeartRiskLevel
-                    </p>
-
-                    <p><strong>Long-term Cardiovascular Risk:</strong><br />
-                        @Model.BP.CardiovascularRisk
-                    </p>
-
+                    <p><strong>Blood Pressure Category:</strong> @Model.BP.Category</p>
+                    <p><strong>Immediate Risk Level:</strong> @Model.BP.HeartRiskLevel</p>
+                    <p><strong>Long-term Cardiovascular Risk:</strong> @Model.BP.CardiovascularRisk</p>
                 </div>
             }
         </form>
     </div>
 </div>
-
-@* ----------------------------
-   NULL-SAFE CHART.JS
-   Only render chart if BP is available
-   ---------------------------- *@
-@if (Model.BP != null)
+@* Chart only renders if BP values exist *@
+@if (Model.BP != null && (Model.BP.Systolic != 0 || Model.BP.Diastolic != 0))
 {
 <h2>Blood Pressure Chart</h2>
 <canvas id="bpChart" width="800" height="600"></canvas>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-
     <script>
         const systolic = @Model.BP.Systolic;
         const diastolic = @Model.BP.Diastolic;
@@ -76,67 +58,23 @@
             type: 'scatter',
             data: {
                 datasets: [
-                    {
-                        label: 'Low Blood Pressure',
-                        data: [{ x: 40, y: 70 }, { x: 59, y: 89 }],
-                        backgroundColor: 'rgba(128, 0, 128, 0.3)',
-                        pointRadius: 0,
-                        showLine: true,
-                        fill: true
-                    },
-                    {
-                        label: 'Healthy',
-                        data: [{ x: 60, y: 90 }, { x: 80, y: 120 }],
-                        backgroundColor: 'rgba(0, 128, 0, 0.3)',
-                        pointRadius: 0,
-                        showLine: true,
-                        fill: true
-                    },
-                    {
-                        label: 'Slightly Raised',
-                        data: [{ x: 81, y: 121 }, { x: 84, y: 134 }],
-                        backgroundColor: 'rgba(255, 255, 0, 0.4)',
-                        pointRadius: 0,
-                        showLine: true,
-                        fill: true
-                    },
-                    {
-                        label: 'High Blood Pressure',
-                        data: [{ x: 85, y: 135 }, { x: 99, y: 169 }],
-                        backgroundColor: 'rgba(255, 0, 0, 0.4)',
-                        pointRadius: 0,
-                        showLine: true,
-                        fill: true
-                    },
-                    {
-                        label: 'Your BP Reading',
-                        data: [{ x: diastolic, y: systolic }],
-                        pointStyle: 'cross',
-                        borderColor: 'black',
-                        backgroundColor: 'black',
-                        pointRadius: 12
-                    }
+                    { label: 'Low Blood Pressure', data: [{ x: 40, y: 70 }, { x: 59, y: 89 }], backgroundColor: 'rgba(128,0,128,0.3)', pointRadius: 0, showLine: true, fill: true },
+                    { label: 'Healthy', data: [{ x: 60, y: 90 }, { x: 80, y: 120 }], backgroundColor: 'rgba(0,128,0,0.3)', pointRadius: 0, showLine: true, fill: true },
+                    { label: 'Slightly Raised', data: [{ x: 81, y: 121 }, { x: 84, y: 134 }], backgroundColor: 'rgba(255,255,0,0.4)', pointRadius: 0, showLine: true, fill: true },
+                    { label: 'High Blood Pressure', data: [{ x: 85, y: 135 }, { x: 99, y: 169 }], backgroundColor: 'rgba(255,0,0,0.4)', pointRadius: 0, showLine: true, fill: true },
+                    { label: 'Your BP Reading', data: [{ x: diastolic, y: systolic }], pointStyle: 'cross', borderColor: 'black', backgroundColor: 'black', pointRadius: 12 }
                 ]
             },
             options: {
                 scales: {
-                    x: {
-                        title: { display: true, text: 'Diastolic (mmHg)' },
-                        min: 40,
-                        max: 100
-                    },
-                    y: {
-                        title: { display: true, text: 'Systolic (mmHg)' },
-                        min: 70,
-                        max: 170
-                    }
+                    x: { title: { display: true, text: 'Diastolic (mmHg)' }, min: 40, max: 100 },
+                    y: { title: { display: true, text: 'Systolic (mmHg)' }, min: 70, max: 170 }
                 }
             }
         });
     </script>
-}
 
-<div class="row">
+    <div class="row">
     <div class="container container-full">
         <div class="fc-6 fc-md-12 flex fa-c bg-white">
             <div class="inner-half left p-tblr fc-12">
@@ -159,12 +97,9 @@
                 </div>
             </div>
         </div>
-
-        <div class="fc-6 fc-md-12 bg_img bg-min-half fc-md-order-2"
-             style="background-image: url('https://kinetikwellbeing.com/wp-content/uploads/2022/09/Untitled-design.png')">
-        </div>
     </div>
-</div>
+    </div>
+}
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

@@ -26,5 +26,11 @@ namespace BPCalculator.Pages
             }
             return Page();
         }
+        public IActionResult OnPostClear()
+        {
+            BP = new BloodPressure();
+            ModelState.Clear();
+            return RedirectToPage(); 
+        }
     }
 }
