@@ -45,7 +45,9 @@
 @if (Model.BP != null && (Model.BP.Systolic != 0 || Model.BP.Diastolic != 0))
 {
 <h2>Blood Pressure Chart</h2>
-<canvas id="bpChart" width="800" height="600"></canvas>
+<div style="width: 600px; height: 400px;">
+    <canvas id="bpChart"></canvas>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
