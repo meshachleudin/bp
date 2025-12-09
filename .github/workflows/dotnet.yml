@@ -19,28 +19,71 @@ env:
 
 # Define the separate jobs that make up this workflow
 jobs:
-  # First job: build and test the application
+  # First job: build and test the application (with SonarCloud)
   build-and-test:
-    name: Build and Test
+    name: Build, Test and Analyze
     runs-on: ubuntu-latest # Use Ubuntu runner for this job
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Important for SonarCloud (git history)
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      # Install SonarScanner for .NET (SonarCloud compatible)
+      - name: Install SonarScanner for .NET
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Add dotnet tools to PATH
+        run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+      # ==== SONARCLOUD BEGIN ANALYSIS ====
+      - name: SonarCloud - Begin analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_ORG: ${{ secrets.SONAR_ORG }}
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+        run: |
+          dotnet-sonarscanner begin \
+            /k:"$SONAR_PROJECT_KEY" \
+            /o:"$SONAR_ORG" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.login="$SONAR_TOKEN" \
+            /d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx" \
+            /d:sonar.coverageReportPaths="**/coverage.opencover.xml"
+
+      # Restore
       - name: Restore
         run: dotnet restore ${{ env.SOLUTION_PATH }}
 
+      # Build
       - name: Build
         run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
       
-      - name: Test
-        run: dotnet test ${{ env.SOLUTION_PATH }} --configuration Release --no-restore --no-build --verbosity normal
+      # Test with coverage so SonarCloud can show it
+      - name: Test with coverage
+        run: |
+          dotnet test ${{ env.SOLUTION_PATH }} \
+            --configuration Release \
+            --no-restore \
+            --no-build \
+            --verbosity normal \
+            --logger "trx;LogFileName=testresults.trx" \
+            /p:CollectCoverage=true \
+            /p:CoverletOutput=./TestResults/coverage \
+            /p:CoverletOutputFormat=opencover
       
+      # ==== SONARCLOUD END ANALYSIS ====
+      - name: SonarCloud - End analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: dotnet-sonarscanner end /d:sonar.login="$SONAR_TOKEN"
+
+      # Publish after analysis
       - name: Publish
         run: dotnet publish ${{ env.API_PROJECT_PATH }} --configuration Release --no-restore --no-build --property:PublishDir=${{ env.PUBLISH_DIR }}
       
@@ -51,7 +94,7 @@ jobs:
           name: webapp # Name of the artifact
           path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
   
-   # Second job: deploy the application to Azure
+  # Second job: deploy the application to Azure
   deploy:
     name: Deploy to Azure
     runs-on: ubuntu-latest
