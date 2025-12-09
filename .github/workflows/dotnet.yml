@@ -1,34 +1,49 @@
-name: CI - Build and Push Docker Image
+name: CI/CD - Build, Test, Deploy to Azure Web App
 
 on:
   push:
     branches: [ "master" ]
   pull_request:
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: bpCalcDeploy
+  DOTNET_VERSION: '9.0.305'
 
 jobs:
-  build-test-docker:
+  build-test-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Setup .NET 9
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '9.0.305'
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    - name: Restore Dependencies
-      run: dotnet restore
+      # Restore using your solution
+      - name: Restore Dependencies
+        run: dotnet restore bp/BPCalculator.sln
 
-    - name: Build Project
-      run: dotnet build --configuration Release --no-restore
+      # Build the solution in Release
+      - name: Build Solution
+        run: dotnet build bp/BPCalculator.sln --configuration Release --no-restore
 
-    - name: Run Unit Tests
-      run: dotnet test --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"
+      # Run tests (if any test projects exist in the solution)
+      - name: Run Unit Tests
+        run: dotnet test bp/BPCalculator.sln --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"
 
-    - name: Upload Test Results
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results
-        path: '**/*.trx'
+      # Publish ONLY the web project to a folder
+      - name: Publish Web App
+        run: dotnet publish bp/BPCalculator/BPCalculator.csproj --configuration Release --no-build -o ./publish
+
+      # Deploy to Azure App Service using publish profile
+      - name: Deploy to Azure Web App
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ./publish
