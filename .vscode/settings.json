@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/2c8b6aa2-1d38-402a-83f5-69f6e1486524/resourceGroups/bpCalcDeploy_group/providers/Microsoft.Web/sites/bpCalcDeploy",
+    "appService.deploySubpath": "."
+}
