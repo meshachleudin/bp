@@ -18,31 +18,26 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: List files
-        run: |
-          pwd
-          ls -R
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      # Restore using your solution
+      # Restore using your solution at repo root
       - name: Restore Dependencies
-        run: dotnet restore bp/BPCalculator.sln
+        run: dotnet restore BPCalculator.sln
 
       # Build the solution in Release
       - name: Build Solution
-        run: dotnet build bp/BPCalculator.sln --configuration Release --no-restore
+        run: dotnet build BPCalculator.sln --configuration Release --no-restore
 
       # Run tests (if any test projects exist in the solution)
       - name: Run Unit Tests
-        run: dotnet test bp/BPCalculator.sln --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"
+        run: dotnet test BPCalculator.sln --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"
 
       # Publish ONLY the web project to a folder
       - name: Publish Web App
-        run: dotnet publish bp/BPCalculator/BPCalculator.csproj --configuration Release --no-build -o ./publish
+        run: dotnet publish BPCalculator/BPCalculator.csproj --configuration Release --no-build -o ./publish
 
       # Deploy to Azure App Service using publish profile
       - name: Deploy to Azure Web App
