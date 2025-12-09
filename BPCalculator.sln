@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BPCalculator", "BPCalculato
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BPCalculator.Specs", "BPCalculator.Specs\BPCalculator.Specs.csproj", "{F9890E36-AC4A-4291-B08F-23FAFE2D289E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BPCalculator.Tests", "BPCalculator.Tests\BPCalculator.Tests.csproj", "{090A7B69-0AC6-43A5-9B71-C73C2733326A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{F9890E36-AC4A-4291-B08F-23FAFE2D289E}.Release|x64.Build.0 = Release|Any CPU
 		{F9890E36-AC4A-4291-B08F-23FAFE2D289E}.Release|x86.ActiveCfg = Release|Any CPU
 		{F9890E36-AC4A-4291-B08F-23FAFE2D289E}.Release|x86.Build.0 = Release|Any CPU
+		{090A7B69-0AC6-43A5-9B71-C73C2733326A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{090A7B69-0AC6-43A5-9B71-C73C2733326A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{090A7B69-0AC6-43A5-9B71-C73C2733326A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{090A7B69-0AC6-43A5-9B71-C73C2733326A}.Debug|x64.Build.0 = Debug|Any CPU
+		{090A7B69-0AC6-43A5-9B71-C73C2733326A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{090A7B69-0AC6-43A5-9B71-C73C2733326A}.Debug|x86.Build.0 = Debug|Any CPU
+		{090A7B69-0AC6-43A5-9B71-C73C2733326A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{090A7B69-0AC6-43A5-9B71-C73C2733326A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{090A7B69-0AC6-43A5-9B71-C73C2733326A}.Release|x64.ActiveCfg = Release|Any CPU
+		{090A7B69-0AC6-43A5-9B71-C73C2733326A}.Release|x64.Build.0 = Release|Any CPU
+		{090A7B69-0AC6-43A5-9B71-C73C2733326A}.Release|x86.ActiveCfg = Release|Any CPU
+		{090A7B69-0AC6-43A5-9B71-C73C2733326A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
