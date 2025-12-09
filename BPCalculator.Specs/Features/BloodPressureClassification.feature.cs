@@ -130,6 +130,195 @@ namespace BPCalculator.Specs.Features
             this.ScenarioCleanup();
         }
         
+        [Xunit.SkippableTheoryAttribute(DisplayName="Category boundaries for systolic and diastolic")]
+        [Xunit.TraitAttribute("FeatureTitle", "Blood pressure classification")]
+        [Xunit.TraitAttribute("Description", "Category boundaries for systolic and diastolic")]
+        [Xunit.InlineDataAttribute("90", "60", "Low", new string[0])]
+        [Xunit.InlineDataAttribute("91", "60", "Ideal", new string[0])]
+        [Xunit.InlineDataAttribute("90", "61", "Ideal", new string[0])]
+        [Xunit.InlineDataAttribute("120", "80", "Ideal", new string[0])]
+        [Xunit.InlineDataAttribute("121", "80", "PreHigh", new string[0])]
+        [Xunit.InlineDataAttribute("120", "81", "PreHigh", new string[0])]
+        [Xunit.InlineDataAttribute("139", "89", "PreHigh", new string[0])]
+        [Xunit.InlineDataAttribute("140", "89", "High", new string[0])]
+        [Xunit.InlineDataAttribute("139", "90", "High", new string[0])]
+        public void CategoryBoundariesForSystolicAndDiastolic(string systolic, string diastolic, string category, string[] exampleTags)
+        {
+            string[] tagsOfScenario = exampleTags;
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            argumentsOfScenario.Add("systolic", systolic);
+            argumentsOfScenario.Add("diastolic", diastolic);
+            argumentsOfScenario.Add("category", category);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Category boundaries for systolic and diastolic", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 24
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 25
+    testRunner.Given(string.Format("I have entered a systolic value of {0} and a diastolic value of {1}", systolic, diastolic), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line hidden
+#line 26
+    testRunner.When("I evaluate my blood pressure", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 27
+    testRunner.Then(string.Format("the category should be \"{0}\"", category), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
+        [Xunit.SkippableTheoryAttribute(DisplayName="Category at valid extreme ranges")]
+        [Xunit.TraitAttribute("FeatureTitle", "Blood pressure classification")]
+        [Xunit.TraitAttribute("Description", "Category at valid extreme ranges")]
+        [Xunit.InlineDataAttribute("70", "40", "Low", new string[0])]
+        [Xunit.InlineDataAttribute("190", "100", "High", new string[0])]
+        public void CategoryAtValidExtremeRanges(string systolic, string diastolic, string category, string[] exampleTags)
+        {
+            string[] tagsOfScenario = exampleTags;
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            argumentsOfScenario.Add("systolic", systolic);
+            argumentsOfScenario.Add("diastolic", diastolic);
+            argumentsOfScenario.Add("category", category);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Category at valid extreme ranges", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 41
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 42
+    testRunner.Given(string.Format("I have entered a systolic value of {0} and a diastolic value of {1}", systolic, diastolic), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line hidden
+#line 43
+    testRunner.When("I evaluate my blood pressure", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 44
+    testRunner.Then(string.Format("the category should be \"{0}\"", category), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
+        [Xunit.SkippableTheoryAttribute(DisplayName="Validation errors for invalid systolic values")]
+        [Xunit.TraitAttribute("FeatureTitle", "Blood pressure classification")]
+        [Xunit.TraitAttribute("Description", "Validation errors for invalid systolic values")]
+        [Xunit.InlineDataAttribute("69", new string[0])]
+        [Xunit.InlineDataAttribute("0", new string[0])]
+        [Xunit.InlineDataAttribute("191", new string[0])]
+        [Xunit.InlineDataAttribute("1000", new string[0])]
+        public void ValidationErrorsForInvalidSystolicValues(string systolic, string[] exampleTags)
+        {
+            string[] tagsOfScenario = exampleTags;
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            argumentsOfScenario.Add("systolic", systolic);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Validation errors for invalid systolic values", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 54
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 55
+    testRunner.Given(string.Format("I have entered a systolic value of {0} and a diastolic value of 70", systolic), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line hidden
+#line 56
+    testRunner.When("I validate the blood pressure reading", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 57
+    testRunner.Then("the validation should fail with error \"Invalid Systolic Value\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
+        [Xunit.SkippableTheoryAttribute(DisplayName="Validation errors for invalid diastolic values")]
+        [Xunit.TraitAttribute("FeatureTitle", "Blood pressure classification")]
+        [Xunit.TraitAttribute("Description", "Validation errors for invalid diastolic values")]
+        [Xunit.InlineDataAttribute("39", new string[0])]
+        [Xunit.InlineDataAttribute("0", new string[0])]
+        [Xunit.InlineDataAttribute("101", new string[0])]
+        [Xunit.InlineDataAttribute("500", new string[0])]
+        public void ValidationErrorsForInvalidDiastolicValues(string diastolic, string[] exampleTags)
+        {
+            string[] tagsOfScenario = exampleTags;
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            argumentsOfScenario.Add("diastolic", diastolic);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Validation errors for invalid diastolic values", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 66
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 67
+    testRunner.Given(string.Format("I have entered a systolic value of 120 and a diastolic value of {0}", diastolic), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line hidden
+#line 68
+    testRunner.When("I validate the blood pressure reading", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 69
+    testRunner.Then("the validation should fail with error \"Invalid Diastolic Value\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
+        [Xunit.SkippableTheoryAttribute(DisplayName="Long-term cardiovascular risk thresholds")]
+        [Xunit.TraitAttribute("FeatureTitle", "Blood pressure classification")]
+        [Xunit.TraitAttribute("Description", "Long-term cardiovascular risk thresholds")]
+        [Xunit.InlineDataAttribute("100", "70", "Low long-term cardiovascular risk.", new string[0])]
+        [Xunit.InlineDataAttribute("110", "80", "Moderate long-term cardiovascular risk.", new string[0])]
+        [Xunit.InlineDataAttribute("130", "80", "High long-term cardiovascular risk.", new string[0])]
+        [Xunit.InlineDataAttribute("140", "90", "High long-term cardiovascular risk.", new string[0])]
+        public void Long_TermCardiovascularRiskThresholds(string systolic, string diastolic, string cardioRisk, string[] exampleTags)
+        {
+            string[] tagsOfScenario = exampleTags;
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            argumentsOfScenario.Add("Systolic", systolic);
+            argumentsOfScenario.Add("Diastolic", diastolic);
+            argumentsOfScenario.Add("CardioRisk", cardioRisk);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Long-term cardiovascular risk thresholds", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 81
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 82
+    testRunner.Given(string.Format("I have entered a systolic value of {0} and a diastolic value of {1}", systolic, diastolic), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line hidden
+#line 83
+    testRunner.When("I evaluate my blood pressure", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 84
+    testRunner.Then(string.Format("the cardiovascular risk should be \"{0}\"", cardioRisk), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
         [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "3.9.0.0")]
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class FixtureData : System.IDisposable

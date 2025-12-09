@@ -1,10 +1,21 @@
-using Xunit;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using BPCalculator;
+using Xunit;
 
 namespace BPCalculator.Tests
 {
     public class BloodPressureTests
     {
+        // Helper for DataAnnotations validation
+        private static IList<ValidationResult> Validate(BloodPressure bp, out bool isValid)
+        {
+            var results = new List<ValidationResult>();
+            var ctx = new ValidationContext(bp);
+            isValid = Validator.TryValidateObject(bp, ctx, results, true);
+            return results;
+        }
+
         // -------------------------------------------------------
         // Tests for BP Category Calculation
         // -------------------------------------------------------
@@ -277,6 +288,46 @@ namespace BPCalculator.Tests
 
             // Assert
             Assert.Equal(expected, result);
+        }
+
+        // -------------------------------------------------------
+        // NEW: Validation tests for invalid values
+        // -------------------------------------------------------
+
+        [Theory]
+        [InlineData(69)]
+        [InlineData(0)]
+        [InlineData(191)]
+        [InlineData(1000)]
+        public void Systolic_Invalid_Values_Are_Rejected(int systolic)
+        {
+            // Arrange
+            var bp = new BloodPressure { Systolic = systolic, Diastolic = 70 };
+
+            // Act
+            var results = Validate(bp, out var isValid);
+
+            // Assert
+            Assert.False(isValid);
+            Assert.Contains(results, r => r.ErrorMessage == "Invalid Systolic Value");
+        }
+
+        [Theory]
+        [InlineData(39)]
+        [InlineData(0)]
+        [InlineData(101)]
+        [InlineData(500)]
+        public void Diastolic_Invalid_Values_Are_Rejected(int diastolic)
+        {
+            // Arrange
+            var bp = new BloodPressure { Systolic = 120, Diastolic = diastolic };
+
+            // Act
+            var results = Validate(bp, out var isValid);
+
+            // Assert
+            Assert.False(isValid);
+            Assert.Contains(results, r => r.ErrorMessage == "Invalid Diastolic Value");
         }
     }
 }
