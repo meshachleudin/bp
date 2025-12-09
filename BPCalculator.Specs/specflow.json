@@ -1,0 +1,11 @@
+{
+  "language": {
+    "feature": "en-US"
+  },
+  "unitTestProvider": {
+    "name": "xUnit"
+  },
+  "bindingCulture": {
+    "name": "en-US"
+  }
+}
