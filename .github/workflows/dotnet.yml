@@ -76,7 +76,10 @@ jobs:
             --logger "trx;LogFileName=unittests.trx" \
             /p:CollectCoverage=true \
             /p:CoverletOutput=./TestResults/BPCalculator.Tests.coverage \
-            /p:CoverletOutputFormat=opencover
+            /p:CoverletOutputFormat=opencover \
+            /p:Threshold=80 \
+            /p:ThresholdType=line \
+            /p:ThresholdStat=total
 
           # SpecFlow tests project
           dotnet test BPCalculator.Specs/BPCalculator.Specs.csproj \
@@ -87,7 +90,10 @@ jobs:
             --logger "trx;LogFileName=spectests.trx" \
             /p:CollectCoverage=true \
             /p:CoverletOutput=./TestResults/BPCalculator.Specs.coverage \
-            /p:CoverletOutputFormat=opencover
+            /p:CoverletOutputFormat=opencover \
+            /p:Threshold=80 \
+            /p:ThresholdType=line \
+            /p:ThresholdStat=total
       
       # ==== SONARCLOUD END ANALYSIS ====
       - name: SonarCloud - End analysis
@@ -154,8 +160,8 @@ jobs:
 
       # k6 LOAD TEST STEP (NON-BLOCKING)
       # Uses Docker image grafana/k6 and your script at BPCalculator.Perf/bp-load.js
-      - name: Run k6 Load Test (non-blocking)
-        continue-on-error: true   # <-- makes this step NON-BLOCKING for the pipeline
+      - name: Run k6 Load Test
+      #  continue-on-error: true   # <-- makes this step NON-BLOCKING for the pipeline
         run: |
           docker run --rm --network host \
             -e BASE_URL=http://localhost:5000 \
