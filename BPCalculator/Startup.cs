@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +20,11 @@ namespace BPCalculator
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+
+            // ✅ Add Application Insights telemetry support
+            services.AddApplicationInsightsTelemetry(
+                Configuration["ApplicationInsights:ConnectionString"]
+            );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
