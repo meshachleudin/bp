@@ -12,12 +12,12 @@ namespace BPCalculator.Specs.Steps
     {
         private readonly BloodPressure _bp = new BloodPressure();
 
-        private string _categoryResult;
-        private string _heartRiskResult;
-        private string _cardioRiskResult;
+        private string _categoryResult = string.Empty;
+        private string _heartRiskResult = string.Empty;
+        private string _cardioRiskResult = string.Empty;
 
         private bool _isValid;
-        private IList<ValidationResult> _validationResults;
+        private IList<ValidationResult> _validationResults = new List<ValidationResult>();
 
         // -------------------------------------------------------
         // Existing GIVEN steps

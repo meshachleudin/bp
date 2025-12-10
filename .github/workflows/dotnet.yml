@@ -65,7 +65,6 @@ jobs:
         run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
       
       # Test with coverage so SonarCloud can show it
-      # NOTE: We run ONLY unit + SpecFlow tests here (no E2E/Playwright).
       - name: Test with coverage
         run: |
           # Unit tests project
@@ -152,6 +151,17 @@ jobs:
             --logger "trx;LogFileName=e2e-results.trx"
         env:
           BP_APP_URL: http://localhost:5000
+
+      # k6 LOAD TEST STEP (NON-BLOCKING)
+      # Uses Docker image grafana/k6 and your script at BPCalculator.Perf/bp-load.js
+      - name: Run k6 Load Test (non-blocking)
+        continue-on-error: true   # <-- makes this step NON-BLOCKING for the pipeline
+        run: |
+          docker run --rm --network host \
+            -e BASE_URL=http://localhost:5000 \
+            -v ${{ github.workspace }}/BPCalculator.Perf:/scripts \
+            grafana/k6 \
+            run /scripts/bp-load.js
 
       # Stop the application
       - name: Stop Application
