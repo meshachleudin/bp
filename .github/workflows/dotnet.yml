@@ -65,17 +65,29 @@ jobs:
         run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
       
       # Test with coverage so SonarCloud can show it
+      # NOTE: We run ONLY unit + SpecFlow tests here (no E2E/Playwright).
       - name: Test with coverage
         run: |
-          dotnet test ${{ env.SOLUTION_PATH }} \
+          # Unit tests project
+          dotnet test BPCalculator.Tests/BPCalculator.Tests.csproj \
             --configuration Release \
             --no-restore \
             --no-build \
             --verbosity normal \
-            --logger "trx;LogFileName=testresults.trx" \
-            --filter "TestCategory!=E2E" \
+            --logger "trx;LogFileName=unittests.trx" \
             /p:CollectCoverage=true \
-            /p:CoverletOutput=./TestResults/coverage \
+            /p:CoverletOutput=./TestResults/BPCalculator.Tests.coverage \
+            /p:CoverletOutputFormat=opencover
+
+          # SpecFlow tests project
+          dotnet test BPCalculator.Specs/BPCalculator.Specs.csproj \
+            --configuration Release \
+            --no-restore \
+            --no-build \
+            --verbosity normal \
+            --logger "trx;LogFileName=spectests.trx" \
+            /p:CollectCoverage=true \
+            /p:CoverletOutput=./TestResults/BPCalculator.Specs.coverage \
             /p:CoverletOutputFormat=opencover
       
       # ==== SONARCLOUD END ANALYSIS ====
@@ -137,8 +149,7 @@ jobs:
             --configuration Release \
             --no-build \
             --verbosity normal \
-            --logger "trx;LogFileName=e2e-results.trx" \
-            --filter "TestCategory=E2E"
+            --logger "trx;LogFileName=e2e-results.trx"
         env:
           BP_APP_URL: http://localhost:5000
 
