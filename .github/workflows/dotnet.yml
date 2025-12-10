@@ -153,7 +153,16 @@ jobs:
           dotnet run --configuration Release &
           APP_PID=$!
           echo "APP_PID=$APP_PID" >> $GITHUB_ENV
-          sleep 5  # Give the app time to start
+          
+          echo "Waiting for app to start..."
+          for i in {1..30}; do
+            if curl -sSf http://localhost:5000 > /dev/null; then
+              echo "App is up!"
+              break
+            fi
+            echo "App not ready yet, retrying..."
+            sleep 2
+          done
         env:
           ASPNETCORE_URLS: http://localhost:5000
           ASPNETCORE_ENVIRONMENT: Production
