@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - master # Run automatically when code is pushed to main branch
+  pull_request:
+    branches:
+      - master # Run automatically on PRs targeting master (including Dependabot PRs)
 
 # Environment variables used throughout the workflow
 env:
