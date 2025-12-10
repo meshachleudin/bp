@@ -1,0 +1,69 @@
+root = true
+
+# =========================
+# Global defaults
+# =========================
+[*]
+indent_style = space
+indent_size = 4
+charset = utf-8-bom
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# =========================
+# C# files
+# =========================
+[*.cs]
+# 'var' usage
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = false:suggestion
+
+# Expression-bodied members
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
+csharp_style_expression_bodied_properties = when_on_single_line:suggestion
+
+# Using directive placement
+csharp_using_directive_placement = outside_namespace:silent
+
+# Prefer 'is not null'
+csharp_style_prefer_is_not_expression = true:suggestion
+
+# Prefer switch expressions where reasonable
+csharp_style_prefer_switch_expression = true:suggestion
+
+# =========================
+# Naming rules (example)
+# Private fields start with _
+# =========================
+dotnet_naming_rule.private_fields_should_be_camel_case_with_underscore.severity = suggestion
+dotnet_naming_rule.private_fields_should_be_camel_case_with_underscore.symbols = private_fields
+dotnet_naming_rule.private_fields_should_be_camel_case_with_underscore.style = camel_case_underscore_style
+
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_fields.required_modifiers =
+
+dotnet_naming_style.camel_case_underscore_style.capitalization = camel_case
+dotnet_naming_style.camel_case_underscore_style.required_prefix = _
+dotnet_naming_style.camel_case_underscore_style.required_suffix =
+dotnet_naming_style.camel_case_underscore_style.word_separator =
+
+# =========================
+# StyleCop rules
+# =========================
+[*.cs]
+# Example: enforce correct using order
+dotnet_diagnostic.SA1200.severity = warning
+
+# Allow private fields to start with _ (disables the default StyleCop rule)
+dotnet_diagnostic.SA1309.severity = none
+
+# XML docs: keep as suggestion for now
+dotnet_diagnostic.SA1600.severity = suggestion
+dotnet_diagnostic.SA1633.severity = none   # File header
+dotnet_diagnostic.SA1649.severity = none   # File name must match first type
+dotnet_diagnostic.SA1602.severity = none   # Enum members must be documented
+dotnet_diagnostic.SA1201.severity = none   # Elements must appear in the correct order
+dotnet_diagnostic.SA1202.severity = none   # Elements must be ordered by access

@@ -1,8 +1,12 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿// <copyright file="BloodPressure.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace BPCalculator
 {
+    using System;
+    using System.ComponentModel.DataAnnotations;
+
     // BP categories
     public enum BPCategory
     {
@@ -16,8 +20,8 @@ namespace BPCalculator
         PreHigh,
 
         [Display(Name = "High Blood Pressure - High risk - Consult your doctor.")]
-        High
-    };
+        High,
+    }
 
     public class BloodPressure
     {
@@ -39,14 +43,20 @@ namespace BPCalculator
         {
             get
             {
-                if (Systolic <= 90 && Diastolic <= 60)
+                if (this.Systolic <= 90 && this.Diastolic <= 60)
+                {
                     return BPCategory.Low;
+                }
 
-                if (Systolic <= 120 && Diastolic <= 80)
+                if (this.Systolic <= 120 && this.Diastolic <= 80)
+                {
                     return BPCategory.Ideal;
+                }
 
-                if (Systolic <= 139 && Diastolic <= 89)
+                if (this.Systolic <= 139 && this.Diastolic <= 89)
+                {
                     return BPCategory.PreHigh;
+                }
 
                 return BPCategory.High;
             }
@@ -59,12 +69,12 @@ namespace BPCalculator
         {
             get
             {
-                return Category switch
+                return this.Category switch
                 {
                     BPCategory.Low => "Low risk - Maintain hydration and regular meals.",
                     BPCategory.Ideal => "Healthy - Keep up the good work!",
                     BPCategory.PreHigh => "Moderate risk - Consider lifestyle adjustments.",
-                    _ => "High risk - Consult your doctor."
+                    _ => "High risk - Consult your doctor.",
                 };
             }
         }
@@ -79,22 +89,32 @@ namespace BPCalculator
                 int score = 0;
 
                 // Safe scoring (integers only)
-                score += Math.Max(0, (Systolic - 100) / 10);
-                score += Math.Max(0, (Diastolic - 70) / 10);
+                score += Math.Max(0, (this.Systolic - 100) / 10);
+                score += Math.Max(0, (this.Diastolic - 70) / 10);
 
                 // Category weighting
-                if (Category == BPCategory.PreHigh)
+                if (this.Category == BPCategory.PreHigh)
+                {
                     score += 2;
+                }
 
-                if (Category == BPCategory.High)
+                if (this.Category == BPCategory.High)
+                {
                     score += 4;
+                }
 
                 if (score < 2)
+                {
                     return "Low long-term cardiovascular risk.";
+                }
                 else if (score < 6)
+                {
                     return "Moderate long-term cardiovascular risk.";
+                }
                 else
+                {
                     return "High long-term cardiovascular risk.";
+                }
             }
         }
     }
