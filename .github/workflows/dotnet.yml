@@ -105,6 +105,16 @@ jobs:
             /p:Threshold=80 \
             /p:ThresholdType=line \
             /p:ThresholdStat=total
+
+      # ✅ NEW STEP: upload unit + SpecFlow test & coverage artifacts
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            **/TestResults/*.trx
+            **/TestResults/*coverage*.xml
       
       # ==== SONARCLOUD END ANALYSIS ====
       - name: SonarCloud - End analysis
