@@ -14,7 +14,7 @@ on:
 # Environment variables used throughout the workflow
 env:
   AZURE_WEBAPP_NAME: bpCalcDeploy
-  AZURE_WEBAPP_PACKAGE_PATH: "./BPCalculator/publish"
+  AZURE_WEBAPP_PACKAGE_PATH: "./publish"   # ✅ CHANGED from "./BPCalculator/publish"
   DOTNET_VERSION: "9.x"
   SOLUTION_PATH: "BPCalculator.sln"
   API_PROJECT_PATH: "BPCalculator"
@@ -131,7 +131,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: webapp # Name of the artifact
-          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}  # now points to "./publish"
 
   # Second job: run E2E tests
   e2e-tests:
@@ -229,7 +229,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: webapp
-          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}   # "./publish"
 
       # Deploy to Azure App Service using publish profile credentials
       - name: Deploy
@@ -238,4 +238,4 @@ jobs:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           # Authentication credentials stored as a secret
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+          package: "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"  # "./publish"
