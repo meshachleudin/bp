@@ -65,7 +65,6 @@ jobs:
         run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
       
       # Test with coverage so SonarCloud can show it
-      # NOTE: Excludes E2E tests (Category = E2E) so Playwright tests don't run here.
       - name: Test with coverage
         run: |
           dotnet test ${{ env.SOLUTION_PATH }} \
