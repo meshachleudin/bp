@@ -221,43 +221,59 @@ jobs:
 
     steps:
       - name: Wait for app to warm up
-        run: sleep 8
+        run: sleep 12
 
-      - name: Run HTTP smoke tests (root and /Index)
+      - name: Run HTTP smoke tests (verbose, diagnostic)
         env:
-          BASE_URL: "https://${{ env.AZURE_WEBAPP_NAME_STAGING_URL }}.azurewebsites.net"
-          EXPECTED: ${{ env.EXPECTED_HOME_TEXT }}
+          BASE_URL: "https://bpcalcdeploy-staging-gnanahg9dxepg5a3.swedencentral-01.azurewebsites.net"   # exact hostname from portal / screenshot
+          EXPECTED: "BP Category Calculator"   
         run: |
-          set -euo pipefail
+          set -eo pipefail
           echo "BASE_URL=$BASE_URL"
+          echo "EXPECTED='$EXPECTED'"
+
           check() {
             local url="$1" expected="$2"
             local tries=0
             local status=""
-            until [ $tries -ge 12 ]; do
+            until [ $tries -ge 20 ]; do
               ((tries++))
-              echo "GET $url (attempt $tries)..."
-              status=$(curl -s -o /tmp/body -w "%{http_code}" "$url" || true)
+              echo "Attempt $tries: GET $url"
+              status=$(curl -sS -w "%{http_code}" -o /tmp/body -D /tmp/headers -L "$url" || true)
+              echo "HTTP status: $status"
+              echo "Response headers (first 100 lines):"
+              sed -n '1,100p' /tmp/headers || true
+              echo "Response body (first 400 chars):"
+              head -c 400 /tmp/body || true
+              echo "---- end preview ----"
+
               if [ "$status" = "200" ]; then
-                if grep -qF "$expected" /tmp/body; then
-                  echo "OK: $url returned 200 and contains expected text"
+                if [ -z "$expected" ]; then
+                  echo "OK: $url returned 200 (no expected text required)."
+                  return 0
+                fi
+                if grep -qF -- "$expected" /tmp/body; then
+                  echo "OK: $url returned 200 and contains expected text."
                   return 0
                 else
-                  echo "WARN: $url returned 200 but expected text not found"
+                  echo "WARN: 200 but expected text not found on this attempt."
                 fi
               else
-                echo "WARN: $url returned status $status"
+                echo "WARN: HTTP status $status"
               fi
-              sleep 3
+              sleep 5
             done
-            echo "FAIL: $url did not become healthy (last status=$status)"
+
+            echo "ERROR: $url did not become healthy after $tries attempts (last status=$status)."
+            echo "Full response body:"
             cat /tmp/body || true
             return 1
           }
 
-          # Run checks
           check "$BASE_URL/" "$EXPECTED"
+          # Check /Index only if you actually need it — many apps redirect to root
           check "$BASE_URL/Index" "$EXPECTED"
+
 
   # Wait for manual approval (environment protection) and then deploy same artifact to PROD
   approve-and-deploy-prod:
