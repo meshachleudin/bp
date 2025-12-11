@@ -1,7 +1,7 @@
-# Name of the workflow as it appears in GitHub Actions UI
+# BPCalculator CI - updated to avoid secret expansion inside run blocks
+# Note: After pasting this, follow the "Pin actions to SHAs" instructions below.
 name: BPCalculator CI
 
-# Define when this workflow will run
 on:
   workflow_dispatch:
   push:
@@ -13,14 +13,14 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: bpCalcDeploy
-  AZURE_WEBAPP_NAME_STAGING: bpCalcDeploy-staging 
-  AZURE_WEBAPP_NAME_STAGING_URL: bpcalcdeploy-staging-gnanahg9dxepg5a3.swedencentral-01  
+  AZURE_WEBAPP_NAME_STAGING: bpCalcDeploy-staging
+  AZURE_WEBAPP_NAME_STAGING_URL: bpcalcdeploy-staging-gnanahg9dxepg5a3.swedencentral-01
   AZURE_WEBAPP_PACKAGE_PATH: "./BPCalculator/publish"
   DOTNET_VERSION: "9.x"
   SOLUTION_PATH: "BPCalculator.sln"
   API_PROJECT_PATH: "BPCalculator"
   PUBLISH_DIR: "./publish"
-  EXPECTED_HOME_TEXT: "BPCalculator"                 # <-- change to text expected on home page for smoke test
+  EXPECTED_HOME_TEXT: "BP Category Calculator"
 
 jobs:
   build-and-test:
@@ -28,12 +28,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      # Pin actions to a commit SHA as explained below (replace @v4 with a full SHA)
+      - uses: actions/checkout@v4   # optional: replace with full SHA for strict pinning
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v4   # optional: replace with full SHA
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -43,17 +42,20 @@ jobs:
       - name: Add dotnet tools to PATH
         run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
+      # --- Sonar begin: do NOT expand secrets in run block ---
       - name: SonarCloud - Begin analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_ORG: ${{ secrets.SONAR_ORG }}
           SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
         run: |
+          # Use env vars (SONAR_PROJECT_KEY, SONAR_ORG, SONAR_TOKEN) rather than expanding secrets inline.
+          # This avoids putting secrets into the workflow text that might be visible in some tools.
           dotnet-sonarscanner begin \
-            /k:"${{ secrets.SONAR_PROJECT_KEY }}" \
-            /o:"${{ secrets.SONAR_ORG }}" \
+            /k:"$SONAR_PROJECT_KEY" \
+            /o:"$SONAR_ORG" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.login="$SONAR_TOKEN" \
             /d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx" \
             /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 
@@ -99,6 +101,7 @@ jobs:
 
       - name: Upload Test Results
         if: always()
+        # Pin this action to a SHA if you need maximum supply-chain security
         uses: actions/upload-artifact@v4
         with:
           name: test-results
@@ -109,7 +112,8 @@ jobs:
       - name: SonarCloud - End analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+        run: |
+          dotnet-sonarscanner end /d:sonar.login="$SONAR_TOKEN"
 
       - name: Publish
         run: dotnet publish ${{ env.API_PROJECT_PATH }} --configuration Release --no-restore --no-build --property:PublishDir=${{ env.PUBLISH_DIR }}
@@ -193,7 +197,6 @@ jobs:
             **/TestResults/
             BPCalculator.E2E/bin/Release/net9.0/
 
-  # Deploy artifact to STAGING (separate Web App)
   deploy-staging:
     name: Deploy to Staging Web App
     runs-on: ubuntu-latest
@@ -206,14 +209,14 @@ jobs:
           name: webapp
           path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
+      # NOTE: Pin this action to a full commit SHA (see instructions below).
       - name: Deploy to Staging Web App
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@f139758d79a59cc0e7ca06bfcff087598be7df18  
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME_STAGING }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_STAGING }}
           package: "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
 
-  # Smoke tests against staging
   smoke-tests:
     name: Smoke tests against Staging
     runs-on: ubuntu-latest
@@ -225,8 +228,8 @@ jobs:
 
       - name: Run HTTP smoke test (root only, verbose)
         env:
-          BASE_URL: "https://bpcalcdeploy-staging-gnanahg9dxepg5a3.swedencentral-01.azurewebsites.net"
-          EXPECTED: "BP Category Calculator"
+          BASE_URL: "https://${{ env.AZURE_WEBAPP_NAME_STAGING_URL }}.azurewebsites.net"
+          EXPECTED: "${{ env.EXPECTED_HOME_TEXT }}"
         run: |
           set -eo pipefail
           echo "BASE_URL=$BASE_URL"
@@ -238,7 +241,6 @@ jobs:
           while [ $attempts -lt 20 ]; do
             attempts=$((attempts+1))
             echo "Attempt #$attempts: curl -i -L $BASE_URL"
-            # Save headers and body separately. Follow redirects (-L).
             http_code=$(curl -sS -w "%{http_code}" -o /tmp/body -D /tmp/headers -L "$BASE_URL" || true)
             last_status="$http_code"
             echo "HTTP status: $http_code"
@@ -272,12 +274,11 @@ jobs:
           cat /tmp/body || true
           exit 1
 
-  # Wait for manual approval (environment protection) and then deploy same artifact to PROD
   approve-and-deploy-prod:
     name: Approval → Deploy to Production
     runs-on: ubuntu-latest
     needs: smoke-tests
-    environment: production    # GitHub will pause and require approver(s) configured for this environment
+    environment: production
 
     steps:
       - name: Download artifact from build job
@@ -286,8 +287,9 @@ jobs:
           name: webapp
           path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
+      # NOTE: Pin this action to a full commit SHA (see instructions below).
       - name: Deploy to Production Web App
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@f139758d79a59cc0e7ca06bfcff087598be7df18   
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
