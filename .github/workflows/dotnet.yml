@@ -13,7 +13,7 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: bpCalcDeploy
-  AZURE_WEBAPP_NAME_STAGING: bpCalcDeploy-staging    # <-- your staging web app name (change if different)
+  AZURE_WEBAPP_NAME_STAGING: bpcalcdeploy-staging-gnanahg9dxepg5a3.swedencentral-01   
   AZURE_WEBAPP_PACKAGE_PATH: "./BPCalculator/publish"
   DOTNET_VERSION: "9.x"
   SOLUTION_PATH: "BPCalculator.sln"
