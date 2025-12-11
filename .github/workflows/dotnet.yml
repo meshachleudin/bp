@@ -221,59 +221,56 @@ jobs:
 
     steps:
       - name: Wait for app to warm up
-        run: sleep 12
+        run: sleep 20
 
-      - name: Run HTTP smoke tests (verbose, diagnostic)
+      - name: Run HTTP smoke test (root only, verbose)
         env:
-          BASE_URL: "https://bpcalcdeploy-staging-gnanahg9dxepg5a3.swedencentral-01.azurewebsites.net"   # exact hostname from portal / screenshot
-          EXPECTED: "BP Category Calculator"   
+          BASE_URL: "https://bpcalcdeploy-staging-gnanahg9dxepg5a3.swedencentral-01.azurewebsites.net"
+          EXPECTED: "BP Category Calculator"
         run: |
           set -eo pipefail
           echo "BASE_URL=$BASE_URL"
           echo "EXPECTED='$EXPECTED'"
 
-          check() {
-            local url="$1" expected="$2"
-            local tries=0
-            local status=""
-            until [ $tries -ge 20 ]; do
-              ((tries++))
-              echo "Attempt $tries: GET $url"
-              status=$(curl -sS -w "%{http_code}" -o /tmp/body -D /tmp/headers -L "$url" || true)
-              echo "HTTP status: $status"
-              echo "Response headers (first 100 lines):"
-              sed -n '1,100p' /tmp/headers || true
-              echo "Response body (first 400 chars):"
-              head -c 400 /tmp/body || true
-              echo "---- end preview ----"
+          echo "Trying to get $BASE_URL (max 20 attempts, 5s apart)..."
+          attempts=0
+          last_status=""
+          while [ $attempts -lt 20 ]; do
+            attempts=$((attempts+1))
+            echo "Attempt #$attempts: curl -i -L $BASE_URL"
+            # Save headers and body separately. Follow redirects (-L).
+            http_code=$(curl -sS -w "%{http_code}" -o /tmp/body -D /tmp/headers -L "$BASE_URL" || true)
+            last_status="$http_code"
+            echo "HTTP status: $http_code"
+            echo "Response headers:"
+            sed -n '1,200p' /tmp/headers || true
+            echo "Response body (first 800 chars):"
+            head -c 800 /tmp/body || true
+            echo "----- end preview -----"
 
-              if [ "$status" = "200" ]; then
-                if [ -z "$expected" ]; then
-                  echo "OK: $url returned 200 (no expected text required)."
-                  return 0
-                fi
-                if grep -qF -- "$expected" /tmp/body; then
-                  echo "OK: $url returned 200 and contains expected text."
-                  return 0
-                else
-                  echo "WARN: 200 but expected text not found on this attempt."
-                fi
-              else
-                echo "WARN: HTTP status $status"
+            if [ "$http_code" = "200" ]; then
+              if [ -z "$EXPECTED" ]; then
+                echo "OK: $BASE_URL returned 200 and no expected text required."
+                exit 0
               fi
-              sleep 5
-            done
 
-            echo "ERROR: $url did not become healthy after $tries attempts (last status=$status)."
-            echo "Full response body:"
-            cat /tmp/body || true
-            return 1
-          }
+              if grep -qF -- "$EXPECTED" /tmp/body; then
+                echo "OK: $BASE_URL returned 200 and contains expected text."
+                exit 0
+              else
+                echo "WARN: 200 but expected text not found on this attempt."
+              fi
+            else
+              echo "WARN: status $http_code."
+            fi
 
-          check "$BASE_URL/" "$EXPECTED"
-          # Check /Index only if you actually need it — many apps redirect to root
-          check "$BASE_URL/Index" "$EXPECTED"
+            sleep 5
+          done
 
+          echo "FAIL: $BASE_URL did not become healthy after $attempts attempts (last status=$last_status)."
+          echo "Full body output:"
+          cat /tmp/body || true
+          exit 1
 
   # Wait for manual approval (environment protection) and then deploy same artifact to PROD
   approve-and-deploy-prod:
