@@ -14,6 +14,7 @@ on:
 # Environment variables used throughout the workflow
 env:
   AZURE_WEBAPP_NAME: bpCalcDeploy
+  AZURE_WEBAPP_PACKAGE_PATH: "./BPCalculator/publish"
   DOTNET_VERSION: "9.x"
   SOLUTION_PATH: "BPCalculator.sln"
   API_PROJECT_PATH: "BPCalculator"
@@ -104,16 +105,6 @@ jobs:
             /p:Threshold=80 \
             /p:ThresholdType=line \
             /p:ThresholdStat=total
-
-      # ✅ Upload unit + SpecFlow test & coverage artifacts
-      - name: Upload Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: |
-            **/TestResults/*.trx
-            **/TestResults/*coverage*.xml
       
       # ==== SONARCLOUD END ANALYSIS ====
       - name: SonarCloud - End analysis
@@ -125,17 +116,12 @@ jobs:
       - name: Publish
         run: dotnet publish ${{ env.API_PROJECT_PATH }} --configuration Release --no-restore --no-build --property:PublishDir=${{ env.PUBLISH_DIR }}
       
-      # (Optional) List what was published, for debugging
-      - name: List publish output
-        run: ls -R ${{ env.PUBLISH_DIR }}
-
       # Store the published output as an artifact for later jobs
       - name: Publish Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: webapp           # ✅ artifact name
-          path: ${{ env.PUBLISH_DIR }}   # ✅ exactly where we published
-          if-no-files-found: error
+          name: webapp # Name of the artifact
+          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
   # Second job: run E2E tests
   e2e-tests:
@@ -167,16 +153,7 @@ jobs:
           dotnet run --configuration Release &
           APP_PID=$!
           echo "APP_PID=$APP_PID" >> $GITHUB_ENV
-          
-          echo "Waiting for app to start..."
-          for i in {1..30}; do
-            if curl -sSf http://localhost:5000 > /dev/null; then
-              echo "App is up!"
-              break
-            fi
-            echo "App not ready yet, retrying..."
-            sleep 2
-          done
+          sleep 5  # Give the app time to start
         env:
           ASPNETCORE_URLS: http://localhost:5000
           ASPNETCORE_ENVIRONMENT: Production
@@ -228,15 +205,12 @@ jobs:
     needs: [build-and-test, e2e-tests] # This job depends on both build-and-test and e2e-tests jobs
 
     steps:
-      # Download ALL artifacts (webapp, test-results, e2e-test-results)
-      - name: Download artifacts from build job
+      # Retrieve the artifacts from the build job
+      - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          path: ./artifacts
-
-      # (Optional) List artifacts to confirm webapp is present
-      - name: List downloaded artifacts
-        run: ls -R ./artifacts
+          name: webapp
+          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
       # Deploy to Azure App Service using publish profile credentials
       - name: Deploy
@@ -245,4 +219,4 @@ jobs:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           # Authentication credentials stored as a secret
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: "./artifacts/webapp"   # ✅ deploy the webapp artifact folder
+          package: "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
