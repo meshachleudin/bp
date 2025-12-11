@@ -105,6 +105,16 @@ jobs:
             /p:Threshold=80 \
             /p:ThresholdType=line \
             /p:ThresholdStat=total
+
+      # ✅ NEW STEP: upload unit + SpecFlow test & coverage artifacts
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            **/TestResults/*.trx
+            **/TestResults/*coverage*.xml
       
       # ==== SONARCLOUD END ANALYSIS ====
       - name: SonarCloud - End analysis
@@ -153,7 +163,16 @@ jobs:
           dotnet run --configuration Release &
           APP_PID=$!
           echo "APP_PID=$APP_PID" >> $GITHUB_ENV
-          sleep 5  # Give the app time to start
+          
+          echo "Waiting for app to start..."
+          for i in {1..30}; do
+            if curl -sSf http://localhost:5000 > /dev/null; then
+              echo "App is up!"
+              break
+            fi
+            echo "App not ready yet, retrying..."
+            sleep 2
+          done
         env:
           ASPNETCORE_URLS: http://localhost:5000
           ASPNETCORE_ENVIRONMENT: Production
